@@ -11,6 +11,8 @@ from PIL import ImageTk, Image
 from tkcalendar import Calendar, DateEntry
 from datetime import date
 
+# importando Registro de aluno
+from Registro import *
 
 #cores
 co0 = "#2e2d2b"  # Preta
@@ -57,6 +59,18 @@ app_lg = app_lg.resize((50,50))
 app_lg = ImageTk.PhotoImage(app_lg)
 app_logo = Label(frame_logo, image=app_lg, text="  Sistema de Registro de Alunos", width=850, compound=LEFT, anchor=NW, font=("Verdana 15"), bg=co6, fg=co1)
 app_logo.place(x=5, y=0)
+
+#abrindo a imagem
+
+imagem = Image.open('logo.png')
+imagem = imagem.resize((130, 130))
+imagem = ImageTk.PhotoImage(imagem)
+l_imagem = Label(frame_details, image=imagem, bg=co1, fg=co4)
+l_imagem.place(x=390, y=10)
+
+# criando funcoes para CRUD
+# função adicionar
+
 
 # Criando os campos de entrada
 
@@ -117,5 +131,79 @@ def escolher_imagem():
 botao_carregar = Button(frame_details, command=escolher_imagem, text='Carregar Foto'.upper(), width=20, compound=CENTER, anchor=CENTER, overrelief=RIDGE, font=("Ivy 7 bold"), bg=co1, fg=co0)
 botao_carregar.place(x=390, y=160)
 
+#Tabela Alunos
+def mostrar_alunos():
+
+    #criando uma treeview com barras de rolagem duplas
+    list_header = ['id', 'Nome', 'email', 'Telefone', 'sexo', 'Data', 'Endereço', 'Curso']
+
+    # ver todos os alunos
+    df_list = sistema_de_registro.view_all_students()
+
+    tree_aluno = ttk.Treeview(frame_tabela, selectmode="extended", columns=list_header, show="headings")
+
+    # vertical scrollbar
+    vsb = ttk.Scrollbar(frame_tabela, orient="vertical", command=tree_aluno.yview)
+    # horizontal scrollbar
+    hsb = ttk.Scrollbar(frame_tabela, orient="horizontal", command=tree_aluno.xview)
+
+    tree_aluno.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+    tree_aluno.grid(column=0, row=1, sticky='nsew')
+    vsb.grid(column=1, row=1, sticky='ns')
+    hsb.grid(column=0, row=2, sticky='ew')
+    frame_tabela.grid_rowconfigure(0, weight=12)
+
+    hd=["nw", "nw", "nw", "center", "center","center", "center","center"]
+    h=[40,150,150,70,70,70,120,100,100]
+    n=0
+
+    for co1 in list_header:
+            tree_aluno.heading(co1, text=co1.title(), anchor=NW)
+            # ajusta a largura da coluna de acordo com a string do cabeçalho
+            tree_aluno.column(co1, width=h[n], anchor=hd[n])
+
+            n+=1
+
+    for item in df_list:
+            tree_aluno.insert('', 'end', values=item)
+
+# procurar aluno
+frame_procurar = Frame(frame_botoes, width=40, height=50, bg=co1, relief=RAISED)
+frame_procurar.grid(row=0, column=0, pady=10, padx=10, sticky=NSEW)
+
+l_nome = Label(frame_procurar, text="Procurar aluno[Entra ID]", anchor=NW, font=("Ivy 10"), bg=co1, fg=co4)
+l_nome.grid(row=0, column=0, pady=8, padx=0, sticky=NSEW)
+e_procurar = Entry(frame_procurar, width=5, justify="center", relief="solid", font=("Ivy 10"))
+e_procurar.grid(row=1, column=0, pady=9, padx=0, sticky=NSEW)
+
+botao_alterar = Button(frame_procurar, text='Procurar', width=9, anchor=CENTER, overrelief=RIDGE, font=("Ivy 7 bold"), bg=co1, fg=co0)
+botao_alterar.grid(row=1, column=1, pady=10, padx=0, sticky=NSEW)
+
+# Botoes
+
+app_img_adicionar = Image.open("add.png")
+app_img_adicionar = app_img_adicionar.resize((25,25))
+app_img_adicionar = ImageTk.PhotoImage(app_img_adicionar)
+app_adicionar = Button(frame_botoes, image=app_img_adicionar, text=' Adicionar', width=100, compound=LEFT, overrelief=RIDGE, font=("Ivy 11"), bg=co1, fg=co0)
+app_adicionar.grid(row=1, column=0, pady=5, padx=10, sticky=NSEW)
+
+app_img_atualizar = Image.open("atualizar.png")
+app_img_atualizar = app_img_atualizar.resize((25,25))
+app_img_atualizar = ImageTk.PhotoImage(app_img_atualizar)
+app_atualizar = Button(frame_botoes, image=app_img_atualizar, text=' Atualizar', width=100, compound=LEFT, overrelief=RIDGE, font=("Ivy 11"), bg=co1, fg=co0)
+app_atualizar.grid(row=2, column=0, pady=5, padx=10, sticky=NSEW)
+
+app_img_delete = Image.open("delete.png")
+app_img_delete = app_img_delete.resize((25,25))
+app_img_delete = ImageTk.PhotoImage(app_img_delete)
+app_delete = Button(frame_botoes, image=app_img_delete, text=' Deletar', width=100, compound=LEFT, overrelief=RIDGE, font=("Ivy 11"), bg=co1, fg=co0)
+app_delete.grid(row=3, column=0, pady=5, padx=10, sticky=NSEW)
+
+# Linha separatoria
+l_linha = Label(frame_botoes, relief=GROOVE, width=1, height=123, anchor=NW, font=("Ivy 1"), bg=co1, fg=co1)
+l_linha.place(x=227, y=15)
+
+# chamar tabela
+mostrar_alunos()
 
 janela.mainloop()
